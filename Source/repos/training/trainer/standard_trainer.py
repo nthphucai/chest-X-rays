@@ -66,7 +66,7 @@ class Trainer(BaseTrainer):
         self.num_train_epochs = num_train_epochs
 
         self.best_loss = float("inf") 
-        self.classes = np.load('/Users/HPhuc/Practice/12. classification/vinbigdata/chest-X-rays/output/columns_14.npy')
+        self.classes = np.load('output/columns_14.npy')
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
  

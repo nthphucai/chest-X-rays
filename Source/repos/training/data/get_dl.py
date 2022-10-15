@@ -22,7 +22,7 @@ class Repos(nn.Module):
     self.fold = fold
     self.df = df
 
-    self.columns = np.load('/Users/HPhuc/Practice/12. classification/vinbigdata/output/columns_14.npy')
+    self.columns = np.load('output/columns_14.npy')
 
     kfold = KFold(n_splits=10, random_state=42, shuffle=True)
     for i, (train_index, val_index) in enumerate(kfold.split(self.df)):
