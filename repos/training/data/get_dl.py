@@ -25,12 +25,9 @@ class Repos(nn.Module):
     self.columns = np.load('output/columns_14.npy')
 
     kfold = KFold(n_splits=10, random_state=42, shuffle=True)
+    # kfold = MultilabelStratifiedShuffleSplit(n_splits=10, test_size=0.1, random_state=42)
     for i, (train_index, val_index) in enumerate(kfold.split(self.df)):
         self.df.loc[val_index, "fold"] = i
-
-    # kfold = MultilabelStratifiedShuffleSplit(n_splits=10, test_size=0.1, random_state=42)
-    # for i, (train_index, val_index) in enumerate(kfold.split(self.df['image_ids'], self.df[self.columns])):
-    #   self.df.loc[val_index, "fold"] = i
 
   def split_kflod(self, df, fold):
     if fold is not None: 
