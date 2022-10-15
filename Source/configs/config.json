@@ -1,0 +1,23 @@
+{ 
+    "loss": {
+        "name": "WBCE",
+        "weights_path": "/Users/HPhuc/Practice/12. classification/vinbigdata/output/weights_14.csv", 
+        "path": "/Users/HPhuc/Practice/12. classification/vinbigdata/Source/repos/training/losses/standard_losses.py"
+    },
+    "metric": {
+        "name": "AUC",
+        "binary": true,
+        "classes": "/Users/HPhuc/Practice/12. classification/vinbigdata/output/columns_14.npy",
+        "subscore": true
+    },
+    "optimizer" : {
+        "name": "Adam",
+        "lr"   : 1e-3
+    },
+    "scheduler": {
+        "name": "ReduceLROnPlateau",
+        "mode": "min",
+        "factor": 0.5,
+        "patience": 2
+    }
+}
