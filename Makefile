@@ -17,4 +17,4 @@ format:
 	isort $(CHECK_DIRS)
 
 clean:
-	find . | grep -E '(\.mypy_cache|__pycache__|\.pyc|\.pyo$$)' | xargs rm -rf
+	find . | grep -E '(\.mypy_cache|.DS_Store|__pycache__|\.pyc|\.pyo$$)' | xargs rm -rf
