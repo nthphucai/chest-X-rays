@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := quality
 .PHONY: quality format clean
 
-CHECK_DIRS := dataset app restapi pipelines utils evaluation
+CHECK_DIRS := classifer
 
 # Check that source code meets quality standards
 
@@ -17,4 +17,4 @@ format:
 	isort $(CHECK_DIRS)
 
 clean:
-	find . | grep -E '(\.mypy_cache|.DS_Store|__pycache__|\.pyc|\.pyo$$)' | xargs rm -rf
+	find . | grep -E '(\.mypy_cache|.DS_Store|__pycache__|\.pyc|.pyc|\.pyo$$)' | xargs rm -rf
