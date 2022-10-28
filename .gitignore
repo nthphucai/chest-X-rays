@@ -11,5 +11,5 @@
 # Built Visual Studio Code Extensions
 *.vsix
 
-vinbigdata-dataset/*
+vinbigdata-dataset
 output/
