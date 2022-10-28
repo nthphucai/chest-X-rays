@@ -10,9 +10,9 @@ import numpy as np
 
 from torchvision.models import densenet121
 
-from repos.modules.commons import GlobalAverage
-from repos.modules.attentions import SAModule
-from repos.training.models.GCN import GCN
+from reposcv.modules.commons import GlobalAverage
+from reposcv.modules.attentions import SAModule
+from reposcv.training.models.GCN import GCN
 from classifer.chexnet import ChexNet
 
 def classifier(gcn=True, pretrained_path=None, freeze_feature=False, n_class=14): 

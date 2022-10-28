@@ -11,13 +11,13 @@ from collections import defaultdict
 from torch.cuda.amp import autocast, GradScaler
 from pathlib import Path
 
-from repos.utils import get_progress
-from repos.training.trainer.utils import get_dict
+from reposcv.utils import get_progress
+from reposcv.training.trainer.utils import get_dict
 
-# from repos.training.data.callbacks import Callbacks #save_logs, save_model, plots
-from repos.training.data.callbacks import save_logs, save_model, plots
-from repos.training.models.optimizer import Lookahead
-from repos.training.trainer.base_trainer import BaseTrainer
+# from reposcv.training.data.callbacks import Callbacks #save_logs, save_model, plots
+from reposcv.training.data.callbacks import save_logs, save_model, plots
+from reposcv.training.models.optimizer import Lookahead
+from reposcv.training.trainer.base_trainer import BaseTrainer
 
 from typing import Iterable
 

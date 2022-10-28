@@ -8,9 +8,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from dataclasses import dataclass, field
-from repos.training.trainer.standard_trainer import Trainer
-from repos.training.data.get_dl import get_dloader
-from repos.training.trainer.config_runner import ConfigTrainer
+from reposcv.training.trainer.standard_trainer import Trainer
+from reposcv.training.data.get_dl import get_dloader
+from reposcv.training.trainer.config_runner import ConfigTrainer
 from classifer.classifier import classifier
 
 from transformers import (

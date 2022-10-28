@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as func
 
-from repos.modules.commons import GlobalAverage
+from reposcv.modules.commons import GlobalAverage
 
 
 class SEAttention(nn.Module):

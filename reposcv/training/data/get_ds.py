@@ -5,9 +5,9 @@ from torch.utils.data import Dataset, RandomSampler, SequentialSampler
 import cv2
 import torch 
 import torch.nn as nn 
-from repos.training.data.base_class import StandardDataset
-from repos.training.data.normalization import normalize
-from repos.training.data.aug2D import ToTorch
+from reposcv.training.data.base_class import StandardDataset
+from reposcv.training.data.normalization import normalize
+from reposcv.training.data.aug2D import ToTorch
 
 class ChextNextDataset(StandardDataset):
   def __init__(self, df, aug, columns):

@@ -3,16 +3,16 @@ import torch.nn as nn
 import numpy as np 
 import torch.optim as optim
 
-from repos.training.losses import __mapping__ as loss_maps
-from repos.training.optimizers import __mapping__ as opt_maps
-from repos.training.schedulers import __mapping__ as scheduler_maps
-from repos.training.metrics import __mapping__ as metric_maps
+from reposcv.training.losses import __mapping__ as loss_maps
+from reposcv.training.optimizers import __mapping__ as opt_maps
+from reposcv.training.schedulers import __mapping__ as scheduler_maps
+from reposcv.training.metrics import __mapping__ as metric_maps
 
-from repos.hub import get_entries
+from reposcv.hub import get_entries
 
-from repos.training.trainer.standard_trainer import Trainer
-from repos.training.data.get_dl import get_dloader
-from repos.modules.access_files import load_json_file
+from reposcv.training.trainer.standard_trainer import Trainer
+from reposcv.training.data.get_dl import get_dloader
+from reposcv.modules.access_files import load_json_file
 
 class ConfigTrainer:
 

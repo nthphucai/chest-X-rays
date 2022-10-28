@@ -8,8 +8,8 @@ from abc import abstractmethod
 from collections import defaultdict
 from torch.cuda.amp import autocast, GradScaler
 
-from repos.utils import get_progress
-from repos.training.models.optimizer import Lookahead
+from reposcv.utils import get_progress
+from reposcv.training.models.optimizer import Lookahead
 
 class BaseTrainer:
     def __init__(self,

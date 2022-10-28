@@ -7,7 +7,7 @@ from scipy.ndimage.interpolation import zoom
 import parameter as para
 from tqdm import tqdm
 import shutil
-from repos.utils import mutiprocess
+from reposcv.utils import mutiprocess
 from sklearn.model_selection import KFold
 
 

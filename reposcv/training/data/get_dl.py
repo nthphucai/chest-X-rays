@@ -7,10 +7,10 @@ import pandas as pd
 import os 
 import parameter as para 
 from parameter import * 
-from repos.training.data.aug2D import train_augs, val_augs
+from reposcv.training.data.aug2D import train_augs, val_augs
 from sklearn.model_selection import KFold
 # from iterstrat.ml_stratifiers import MultilabelStratifiedShuffleSplit
-from repos.training.data.get_ds import ChextNextDataset, ToTorch
+from reposcv.training.data.get_ds import ChextNextDataset, ToTorch
 from albumentations import Compose, OneOf, HorizontalFlip, RandomGamma, ShiftScaleRotate, RandomBrightnessContrast, RandomCrop, CenterCrop, Cutout 
 
 """

@@ -18,14 +18,14 @@ from collections import defaultdict
 from torch.cuda.amp import autocast, GradScaler
 
 import parameter as para
-import repos.utils as utils
-from repos.utils import get_progress
-from repos.training.data.callbacks import Callbacks
-from repos.training.data.get_dl import get_dloader
-from repos.training.models.optimizer import Lookahead
+import reposcv.utils as utils
+from reposcv.utils import get_progress
+from reposcv.training.data.callbacks import Callbacks
+from reposcv.training.data.get_dl import get_dloader
+from reposcv.training.models.optimizer import Lookahead
 
-from repos.training.losses import __mapping__ as loss_maps
-from repos.hub import get_entries
+from reposcv.training.losses import __mapping__ as loss_maps
+from reposcv.hub import get_entries
 
 class Trainer:
     def __init__(self,

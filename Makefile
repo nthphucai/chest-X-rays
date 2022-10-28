@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := quality
 .PHONY: quality format clean
 
-CHECK_DIRS := classifer
+CHECK_DIRS := classifer repos
 
 # Check that source code meets quality standards
 
