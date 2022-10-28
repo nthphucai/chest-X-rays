@@ -1,4 +1,4 @@
-from repos.training.metrics._classify import AUCScore, Accuracy, F1Score, prec_recall_fscore_support
+from reposcv.training.metrics._classify import AUCScore, Accuracy, F1Score, prec_recall_fscore_support
 
 __mapping__ = {
     "auc": AUCScore,
