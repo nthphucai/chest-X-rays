@@ -5,7 +5,7 @@ import pandas as pd
 
 from abc import abstractmethod
 
-from collections import defaultdict
+from typing import List
 from torch.cuda.amp import autocast, GradScaler
 
 from reposcv.utils import get_progress
@@ -19,33 +19,37 @@ class BaseTrainer:
                 loss: nn.Module, 
                 optimizer: nn.Module, 
                 scheduler: nn.Module, 
-                metric: nn.Module, 
+                metric: nn.Module,
     ):        
         self.dl_train =  train_data
         self.dl_val = val_data
         self.model = model
         self.loss = loss
-        self.opt = optimizer
+        self.optimizer = optimizer
         self.scheduler = scheduler
         self.score = metric
 
-    def _train_one_epoch(self, epoch: int):
+    def _train_one_epoch(self, epoch: int, callbacks):
       total_loss = 0.0
       subscore   = 0.0 
       
-      self.opt.zero_grad()
+      self.optimizer.zero_grad()
       self.model.train() 
       with get_progress(total=len(self.dl_train)) as pbar:
-        for idc, batch_data in enumerate(self.dl_train):
-            imgs, targets = self._extract_loader(batch_data)
+        for i, batch_data in enumerate(self.dl_train):
+            data = self._extract_loader(batch_data)
+            imgs, targets = data
+            [c.on_training_batch_begin(epoch, i, data) for c in callbacks]
+
             loss, preds   = self._train_one_batch(imgs, targets)
-        
+
             pbar.update()
 
             with torch.no_grad():
                 total_loss  += loss.item()
                 subscore    += self._measures_one_batch(preds, targets)
-                      
+                [c.on_training_batch_end(epoch=epoch, step=i, data=data, logs=total_loss) for c in callbacks]
+
       train_loss = total_loss / len(self.dl_train) 
       subscore, score = self._measures_one_epoch(subscore, self.dl_train)
 

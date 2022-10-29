@@ -4,6 +4,7 @@ import numpy as np
 import torch.optim as optim
 
 from reposcv.training.losses import __mapping__ as loss_maps
+from reposcv.training.callbacks import __mapping__ as callbacks
 from reposcv.training.optimizers import __mapping__ as opt_maps
 from reposcv.training.schedulers import __mapping__ as scheduler_maps
 from reposcv.training.metrics import __mapping__ as metric_maps

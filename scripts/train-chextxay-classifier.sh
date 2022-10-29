@@ -8,6 +8,7 @@ python run.py \
     --output_dir output \
     --do_train True \
     --do_eval False \
-    --train_batch_size 10 \
+    --num_train_epochs 10 \
+    --train_batch_size 3 \
     --eval_batch_size 2 \
     --save_model True 

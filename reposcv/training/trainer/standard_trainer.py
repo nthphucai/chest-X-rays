@@ -6,6 +6,9 @@ import pandas as pd
 from tqdm import tqdm 
 from itertools import chain 
 
+import sys 
+sys.path.append(".")
+
 import torch.optim as optim
 from collections import defaultdict
 from torch.cuda.amp import autocast, GradScaler
@@ -17,9 +20,10 @@ from reposcv.training.trainer.utils import get_dict
 # from reposcv.training.data.callbacks import Callbacks #save_logs, save_model, plots
 from reposcv.training.data.callbacks import save_logs, save_model, plots
 from reposcv.training.models.optimizer import Lookahead
-from reposcv.training.trainer.base_trainer import BaseTrainer
-
+from ..trainer.base_trainer import BaseTrainer
+from ..callbacks.clr import LrFinder
 from typing import Iterable
+from ..callbacks.base_class import Callback
 
 import datetime
 
@@ -102,12 +106,23 @@ class Trainer(BaseTrainer):
         )
         return subscore
 
-    def run(self, mode = ['train', 'valid']):
+    # def run(self, mode = ['train', 'valid'], callbacks = [LrFinder()]):
+    def run(self, mode = ['train', 'valid'], callbacks = []):
+        [c.set_trainer(self) for c in callbacks]
+        train_configs = {
+            "train_loader": self.dl_train,
+            "test_loader": self.dl_val,
+            "start_epoch": 1,
+        }
+        [c.on_train_begin(**train_configs) for c in callbacks]
+
         for e in range(self.num_train_epochs):
             for _ in mode:
                 print('Epoch', f'{e}/' + f'{self.num_train_epochs}')
+                
+                [c.on_epoch_begin(e) for c in callbacks]
 
-                loss, score, subscore = self._train_one_epoch(e) 
+                loss, score, subscore = self._train_one_epoch(e, callbacks) 
                 result = chain(*[(c, f"{value:4f}") for (c, value) in zip(self.classes, subscore)])
                 print("Loss", loss, *result) 
 
@@ -133,6 +148,11 @@ class Trainer(BaseTrainer):
                     if self.save_model and (e > 1) and (loss < self.best_loss): 
                         self.best_loss = loss
                         save_model(self.best_loss, e, self.model, self.opt, model_path=model_path)   
-
+            
+            [c.on_epoch_end(e, logs) for c in callbacks]
+        
         logger.info("Save logs at directory: %s", log_path)
         logger.info("Save model at directory: %s", model_path)
+        
+        [c.on_train_end() for c in callbacks]
+

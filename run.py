@@ -1,11 +1,13 @@
 import os
-import sys
 import pandas as pd 
 import torch 
 from typing import Optional, List
 import wandb
 import warnings
 warnings.filterwarnings("ignore")
+
+import sys
+sys.dont_write_bytecode = True
 
 from dataclasses import dataclass, field
 from reposcv.training.trainer.standard_trainer import Trainer
@@ -70,6 +72,10 @@ class TrainingArguments:
     )
     config_path: Optional[str] = field(
         default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"},
+    )
+    
+    num_train_epochs: int = field(
+        default=4, metadata={"help": "Batch size per GPU/TPU core/CPU for evaluation."}
     )
 
     do_train: bool = field(default=True, metadata={"help": "Whether to run training."})
@@ -139,7 +145,7 @@ def main(args_file=None):
                 optimizer = configs["opt"], 
                 scheduler = configs["scheduler"], 
                 metric = configs["metric"],
-                num_train_epochs = training_args.train_batch_size,
+                num_train_epochs = training_args.num_train_epochs,
                 output_dir = training_args.output_dir,
                 save_model = training_args.save_model,
                 fp16 = training_args.fp16
