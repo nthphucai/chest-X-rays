@@ -2,7 +2,7 @@
     "loss": {
         "name": "WBCE",
         "weights_path": "output/weights_14.csv", 
-        "path": "reposcv/training/losses/standard_losses.py"
+        "path": "classifier/training/losses/standard_losses.py"
     },
     "metric": {
         "name": "AUC",

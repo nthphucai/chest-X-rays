@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-python run.py \
+python classifier/training/run.py \
     --model_path output/checkpoints/fold0_20221002.pt \
     --data_path output/csv/data_train.csv \
     --config_path configs/config.json \

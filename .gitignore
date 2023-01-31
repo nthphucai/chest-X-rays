@@ -13,3 +13,5 @@
 
 vinbigdata-dataset
 output/
+
+__pycache__
