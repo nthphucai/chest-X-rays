@@ -3,6 +3,9 @@ import torch
 import torch.nn as nn 
 import numpy as np
 from torchvision.models import densenet121
+import torch.nn.functional as func
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class GraphLinear(nn.Module):
     def __init__(self, in_channels, out_channels, adj_mtrix, bias=False):
@@ -10,7 +13,7 @@ class GraphLinear(nn.Module):
         self.weight    = nn.Parameter(torch.Tensor(in_channels, out_channels), requires_grad=True)
         self.adj_mtrix = nn.Parameter(torch.tensor(adj_mtrix, dtype=torch.float), requires_grad=False)
         if bias:
-            self.bias = nn.Parameter(torch.Tensor(1, 1, out_channels), requires_grad=True)
+            self.bias = nn.Parameter(torch.zeros(out_channels), requires_grad=True)
         else:
             self.register_parameter('bias', None)
             
@@ -24,11 +27,8 @@ class GraphLinear(nn.Module):
 
     def forward(self, embedding_nodes):
         support = torch.matmul(embedding_nodes.float(), self.weight.float())
-        output  = torch.matmul(self.adj_mtrix, support) 
-        if self.bias is not None:
-            return output + self.bias
-        else:
-            return output
+        output = func.linear(self.adj_mtrix, support.T, self.bias) 
+        return output
 
 class GraphSequential(nn.Module):
     def __init__(self, embedding_nodes, *args):
@@ -45,17 +45,18 @@ class GraphSequential(nn.Module):
 class GCN(nn.Module):
     def __init__(self, in_channels, out_channels, embedding_nodes, adj_mtrix, bias=True):
         super().__init__()
-
+        
         bottleneck  = int(np.round(out_channels // 2))
         self.embedding = GraphSequential(embedding_nodes, *[
-            GraphLinear(in_channels, bottleneck, adj_mtrix, bias=bias),
+            GraphLinear(in_channels, bottleneck, adj_mtrix, bias=True),
             nn.LeakyReLU(0.2),
-            GraphLinear(bottleneck, out_channels, adj_mtrix, bias=bias),
+            GraphLinear(bottleneck, out_channels, adj_mtrix, bias=True),
         ])
         self.sigm = nn.Sigmoid()
 
     def forward(self, features):
-        embedding = self.embedding().cuda()
+        embedding = self.embedding().to(device)
+        features = features.to(device)
         """ bias: True -> squeeze()
         """
         embedding = embedding.squeeze() 

@@ -1,130 +1,202 @@
 import torch
 import torch.nn as nn 
 
-from classifier.training.losses import __mapping__ as loss_maps
-from classifier.training.callbacks import __mapping__ as callbacks
-from classifier.training.optimizers import __mapping__ as opt_maps
-from classifier.training.schedulers import __mapping__ as scheduler_maps
-from classifier.training.metrics import __mapping__ as metric_maps
+from ...training.losses import __mapping__ as loss_maps
+from ...training.callbacks import __mapping__ as callbacks
+from ...training.optimizers import __mapping__ as opt_maps
+from ...training.schedulers import __mapping__ as scheduler_maps
+from ...training.metrics import __mapping__ as metric_maps
 
-from classifier.hub import get_entries
-from classifier.data.data_loaders import get_dloader
-from classifier.utils.file_utils import load_json_file
+import json
+from typing import Optional, Union
+
+import torch
+import torch.nn as nn
+import numpy as np
+from torch.utils.data import Dataset
+
+# from ...models import model_maps
+from ...training.losses import __mapping__ as loss_maps
+from ...training.metrics import __mapping__ as metric_maps
+from ...training.callbacks import __mapping__ as callback_maps
+from ...training.optimizers import __mapping__ as optimizer_maps
+from ...training.schedulers import __mapping__ as scheduler_maps
+from ...training.trainer.standard_trainer import Trainer
+from ...data.data_loaders.processor import DataProcessor
+
 
 class ConfigTrainer:
+    def __init__(
+        self,
+        train_dataset: Dataset,
+        valid_dataset: Optional[Dataset],
+        model: Optional[nn.Module] = None,
+        config: dict = None,
+        save_config_path: str = None,
+        verbose: bool = False,
+        num_train_epochs: int = 2,
+        out_dir: str = None,
+        log_dir: str = None,
+        fp16: bool = False,
+        do_train: bool = True,
+        do_eval: bool = False, 
+    ):
+        self.config = config
+        self.save_config_path = save_config_path
 
-    def __init__(self, 
-                model_config: nn.Module,
-                config_path: str,
-                verbose=None):
-        
-        training_configs = load_json_file(config_path)
-        loss_config = training_configs["loss"] 
-        opt_config = training_configs["optimizer"]
-        metric_config = training_configs["metric"]
-        scheduler_config = training_configs["scheduler"]
+        loss_config = config["criterion"]
+        metrics_configs = config.get("metric", [])
+        opt_config = config["optimizer"]
+        callbacks_configs = config.get("callbacks", [])
+        scheduler_configs = config.get("schedulers", [])
+        # model_config = config.get("model", []) if model is None else None
 
-        self.model = self._get_model(model_config)
+        self.num_train_epochs = num_train_epochs
+        self.out_dir = out_dir
+        self.log_dir = log_dir
+        self.fp16 = fp16
+
+        print("creating train, valid loader") if verbose else None
+        self.dl_train, self.dl_valid = self._get_dataloader(train_dataset, valid_dataset)
+
+        print("creating model") if verbose else None
+        self.model = model #self._get_model(model_config) if model is None else model
         if verbose:
+            print("printing model to model.txt")
+
+            with open("model.txt", "w") as handle:
+                handle.write(str(self.model))
+
             num = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-            print('parameters:', f'{num:,}')
+            print("parameters:", f"{num:,}")
 
-        # self.repo = self._get_repo(repo_config)
-        # print("creating train, valid loader") if verbose else None
-
-        self.loss = self._get_loss(loss_config)
+        self.loss = self._get_loss(loss_config=loss_config)
         print("loss: ", self.loss) if verbose else None
 
-        self.metrics = self._get_metrics(metric_config)
+        self.metrics = self._get_metrics(metrics_configs=metrics_configs)
         print("metrics: ", self.metrics) if verbose else None
 
-        self.optimizer = self._get_optimizer(opt_config)
+        self.optimizer = self._get_optimizer(opt_config=opt_config)
+        # self.optimizer = optimizer_maps["look_ahead"](self.optimizer, k=5, alpha=0.5) 
         print("optimizer: ", self.optimizer) if verbose else None
 
-        self.scheduler = self.get_scheduler(scheduler_config)
-        print("scheduler: ", self.scheduler) if verbose else None
+        self.scheduler = None
+        print("optimizer: ", self.scheduler) if verbose else None
 
-        # self.callbacks = self._get_callbacks(callbacks_configs)
-        # print("callbacks: ", self.callbacks) if verbose else None
+        self.callbacks = self._get_callbacks(callbacks_configs)
+        print("callbacks: ", self.callbacks) if verbose else None
 
+        self.mode = ("train", "eval") if do_eval and do_train else ("train", )
+
+    def _get_dataloader(self, train_dataset, valid_dataset):
+        processor = DataProcessor(batch_size=2, workers=2)
+        train_dataloaders = processor.get_dloader(train_dataset) 
+        valid_dataloaders = processor.get_dloader(valid_dataset) if valid_dataset is not None else None
+
+        minibatch = next(iter(train_dataloaders))
+        print("img shape:", minibatch[0].shape)
+        print("label shape:", minibatch[1].shape)
+
+        return train_dataloaders, valid_dataloaders
 
     def _get_model(self, model_config):
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        return model_config.to(device)
+        name = model_config["path"]
+        kwargs = self.get_kwargs(model_config, ["name"])
+        model = model_maps[name](**kwargs)
+        if "checkpoint" in model_config:
+            w = torch.load(model_config["checkpoint"], map_location="cpu")
+            print(model.load_state_dict(w, strict=False))
 
-    def _get_repo(self, repo_config):
-        dl_train, dl_valid = get_dloader(df=repo_config, fold=0)
-        return dl_train, dl_valid
+        if model_config.get("parallel", False):
+            model = nn.DataParallel(model).cuda()
+        elif model_config.get("gpu", False):
+            model = model.cuda()
+
+        return model
 
     def _get_loss(self, loss_config):
-        name = loss_config['name'].lower()
-        kwargs = self.get_kwargs(loss_config, excludes=("name", "classes", "path"))
+        name = loss_config["name"]
+        kwargs = self.get_kwargs(loss_config, ["name"])
+        loss = loss_maps[name](**kwargs)
+        return loss
 
-        if "path" in loss_config:
-            entries = get_entries(loss_config['path'])
-            loss = entries.load_func(loss_config['name'], **kwargs)
-
-        elif name in loss_maps:
-            loss = loss_maps[name](**kwargs)
-  
-        return loss 
-
-    def _get_metrics(self, metric_config):
-        name = metric_config["name"].lower()
-        kwargs = self.get_kwargs(metric_config, excludes=("name", "path", "subscore"))
-        
-        if "path" in metric_config:
-            entries = get_entries(metric_config['path'])
-            metric = entries.load_func(metric_config['name'], **kwargs)
-
-        elif name in metric_maps:
-            metric = metric_maps[name](**kwargs)
-            
-        return metric 
+    def _get_metrics(self, metrics_configs):
+        name = metrics_configs["name"]
+        kwargs = self.get_kwargs(metrics_configs, ["name"])
+        metrics = metric_maps[name](**kwargs)
+        return metrics
 
     def _get_optimizer(self, opt_config):
-        name = opt_config['name'].lower()
-        kwargs = self.get_kwargs(opt_config, excludes=("name", "classes", "path"))
+        name = opt_config["name"]
+        opt = optimizer_maps[name]
+        kwargs = self.get_kwargs(opt_config, ["name"])
 
-        if name in opt_maps:
-            optimizer = opt_maps[name]
-        else:
-            raise NotImplementedError(f"only support{opt_maps.keys()}")
+        if "checkpoint" in opt_config:
+            opt.load_state_dict(
+                torch.load(opt_config["checkpoint"], map_location="cpu")
+            )
 
-        optimizer = optimizer([p for p in self.model.parameters() if p.requires_grad], **kwargs)
+        opt = opt([p for p in self.model.parameters() if p.requires_grad], **kwargs)
+        return opt
 
-        return optimizer
+    def _get_callbacks(self, callbacks_configs):
+        callbacks_configs = [] + callbacks_configs
+        cbs = []
 
-    def get_scheduler(self, scheduler_config):
-        name = scheduler_config['name'].lower()
-        kwargs = self.get_kwargs(scheduler_config, excludes=("name", "classes", "path"))
+        for cb_config in callbacks_configs:
+            name = cb_config["name"].lower()
+            kwargs = self.get_kwargs(cb_config)
+            if name in callback_maps:
+                cbs.append(callback_maps[name](**kwargs))
 
-        if name in scheduler_maps:
-            scheduler = scheduler_maps[name]
-        else:
-            raise NotImplementedError(f"only support{scheduler_maps.keys()}")
+        return cbs
 
-        scheduler = scheduler(self.optimizer, **kwargs)
+    def train(self):
+        """
+        run the training process based on config
+        """
+        runner = Trainer(
+            train_data=self.dl_train,
+            val_data=self.dl_valid,
+            model=self.model,
+            loss=self.loss,
+            optimizer=self.optimizer,
+            scheduler=self.scheduler,
+            metric=self.metrics,
+            num_train_epochs=self.num_train_epochs,
+            out_dir=self.out_dir,
+            log_dir=self.log_dir,
+            fp16=self.fp16,
+        )
+        if self.save_config_path is not None:
+            full_file = f"{self.save_config_path}"
+            with open(full_file, "w") as handle:
+                json.dump(self.config, handle)
 
-        return scheduler
-        
-    def _get_callbacks(self, callbacks_config):
-        kwargs = self.get_kwargs(callbacks_config, excludes=("name", "path"))
-
-        if "path" in callbacks_config:
-            entries = get_entries(callbacks_config['path'])
-            callbacks = entries.load_func(callbacks_config['name'], **kwargs)
-        
-        return callbacks
-
-    def __call__(self):
-        return {
-            "loss": self.loss,
-            "opt": self.optimizer,
-            "scheduler": self.scheduler,
-            "metric": self.metrics
-    }
+        return runner.run(mode=self.mode, callbacks=self.callbacks)
 
     @staticmethod
-    def get_kwargs(configs, excludes=("name", )):
+    def get_kwargs(configs, excludes=("name",)):
+        excludes = set(excludes)
+
         return {k: configs[k] for k in configs if k not in excludes}
+
+
+def create(config, save_config_path=None, name=None, verbose=1):
+    """
+    create runner
+    Args:
+        config: config dict or path to config dict
+        save_config_path: where to save config after training
+        name: name of saved config
+        verbose: print creation step
+
+    Returns: ConfigRunner
+    """
+    if not isinstance(config, dict):
+        with open(config) as handle:
+            config = json.load(handle)
+
+    return ConfigTrainer(
+        config, save_config_path=save_config_path, name=name, verbose=verbose
+    )

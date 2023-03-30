@@ -1,0 +1,23 @@
+version: v0.1
+name: classifier
+
+classifier:
+  criterion:
+    name: wbce
+    weights_path: output/weights_14.csv
+    device: cuda
+  metric: 
+    name: "auc"
+    binary: True
+    classes: "data/nih/nih_classes_14.npy"
+  optimizer: 
+    name: adam
+    lr: 1.e-4
+  scheduler": 
+      name: "ReduceLROnPlateau"
+      mode: "min"
+      factor: 0.5,
+      patience: 2
+  verbose: False
+
+    

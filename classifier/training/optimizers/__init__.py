@@ -1,8 +1,5 @@
 import torch
-from torch.optim import Adam, SGD
 
+from .lookahead import Lookahead
 
-__mapping__ = {
-    "adam": Adam,
-    "sgd": SGD,
-}
+__mapping__ = {"adam": torch.optim.Adam, "look_ahead": Lookahead}

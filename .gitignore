@@ -12,6 +12,11 @@
 *.vsix
 
 vinbigdata-dataset
-output/
+output
+chest-X-rays/classifier/data
+chest-X-rays/data/train/*
+data
+vinbigdata
+NIH-Chest-X-ray-Dataset
 
 __pycache__

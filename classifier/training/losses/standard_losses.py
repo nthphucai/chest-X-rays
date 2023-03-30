@@ -18,7 +18,6 @@ class WBCE(nn.Module):
             print(pd.DataFrame(weights, index=['default']))
         elif ".csv" in weights_path:
             weights = pd.read_csv(weights_path, index_col=0)
-            # print(weights)
             weights = weights.values
         elif ".npy" in weights_path:
             weights = np.load(weights_path)

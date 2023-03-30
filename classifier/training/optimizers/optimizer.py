@@ -1,7 +1,10 @@
-from parameter import * 
-import torch 
 from collections import defaultdict
+from itertools import chain
+from torch.optim import Optimizer
+import torch
+import warnings
 
+# Look ahead optimizer
 class Lookahead(Optimizer):
     def __init__(self, optimizer, k=5, alpha=0.5):
         self.optimizer = optimizer
@@ -68,3 +71,4 @@ class Lookahead(Optimizer):
         param_group["counter"] = 0
         self.optimizer.add_param_group(param_group)
 
+        

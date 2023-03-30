@@ -1,21 +1,14 @@
-from .base_class import Callback
-from .clr import SuperConvergence, LrFinder, WarmRestart
-
+from .clr import LrFinder, SuperConvergence, WarmRestart
+from .standard_callbacks import (CSVLogger, EarlyStopping, ModelCheckpoint,
+                                 ReduceLROnPlateau, Tensorboard)
 
 __mapping__ = {
-#     "csv logger": CSVLogger,
-#     "csv_logger": CSVLogger,
-#     "csv": CSVLogger,
-#     "tensorboard": Tensorboard,
-#     "plateau": ReduceLROnPlateau,
-#     "early stopping": EarlyStopping,
-#     "early_stopping": EarlyStopping,
-#     "checkpoint": ModelCheckpoint,
-    "super convergence": SuperConvergence,
+    "csv_logger": CSVLogger,
+    "tensorboard": Tensorboard,
+    "plateau": ReduceLROnPlateau,
+    "early_stopping": EarlyStopping,
+    "checkpoint": ModelCheckpoint,
     "super_convergence": SuperConvergence,
-    "lr finder": LrFinder,
     "lr_finder": LrFinder,
-    "warm": WarmRestart,
-    "warm restart": WarmRestart,
     "warm_restart": WarmRestart,
 }

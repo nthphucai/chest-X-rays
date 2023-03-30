@@ -11,4 +11,5 @@ class ChexNet(nn.Module):
                                  nn.Linear(1024, 14))
 
     def forward(self, x):
+        x = nn.Linear(3, 1)(x)
         return self.head(self.backbone(x))
