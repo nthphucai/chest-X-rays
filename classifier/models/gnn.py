@@ -1,13 +1,15 @@
-import torch 
-import torch.nn as nn 
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
+
 from classifier.models.modules.attentions import SAModule
 from classifier.models.modules.commons import GlobalAverage
 
-class GraphLinear(nn.Linear):
 
+class GraphLinear(nn.Linear):
     def __init__(self, in_channels, out_channels, correlation_matrix, bias=True):
         """
         :param in_channels: size of input features
@@ -17,7 +19,9 @@ class GraphLinear(nn.Linear):
         """
         super().__init__(in_channels, out_channels, bias)
 
-        assert isinstance(correlation_matrix, nn.Parameter), "correlation must be nn.Parameter"
+        assert isinstance(
+            correlation_matrix, nn.Parameter
+        ), "correlation must be nn.Parameter"
 
         self.correlation_matrix = correlation_matrix
 
@@ -26,8 +30,8 @@ class GraphLinear(nn.Linear):
 
         return super().forward(prop)
 
-class GraphSequential(nn.Module):
 
+class GraphSequential(nn.Module):
     def __init__(self, node_embedding, *args):
         """
         :param node_embedding: embedding extracted from text, either numpy or torch tensor
@@ -44,42 +48,48 @@ class GraphSequential(nn.Module):
     def forward(self):
         return self.sequential(self.embedding)
 
-class GCN(nn.Module):
 
+class GCN(nn.Module):
     def __init__(self, width, embeddings, corr_matrix):
         super().__init__()
 
-        self.corr = nn.Parameter(torch.tensor(corr_matrix, dtype=torch.float), requires_grad=False)
+        self.corr = nn.Parameter(
+            torch.tensor(corr_matrix, dtype=torch.float), requires_grad=False
+        )
         self.bias = nn.Parameter(torch.zeros(corr_matrix.shape[0]))
-        
+
         bottleneck = width // 2
-        self.embeddings = GraphSequential(embeddings, *[
-            GraphLinear(300, bottleneck, self.corr, bias=True),
-            nn.LeakyReLU(negative_slope=0.2, inplace=True),
-            GraphLinear(bottleneck, width * 3 * 3, self.corr, bias=True),
-        ])
+        self.embeddings = GraphSequential(
+            embeddings,
+            *[
+                GraphLinear(300, bottleneck, self.corr, bias=True),
+                nn.LeakyReLU(negative_slope=0.2, inplace=True),
+                GraphLinear(bottleneck, width * 3 * 3, self.corr, bias=True),
+            ],
+        )
 
     def forward(self, x):
         embeddings = self.embeddings()
         embeddings = embeddings.view(-1, x.shape[1], 3, 3)
         scores = F.conv2d(x, embeddings, bias=self.bias, padding=1)
-#         scores = F.linear(x, embeddings, bias=self.bias)
+        #         scores = F.linear(x, embeddings, bias=self.bias)
 
         return scores
+
+
 """
 hubconfig
 """
 import inspect as insp
 import sys
-
 from importlib import import_module
 
-class HubEntries:
 
+class HubEntries:
     def __init__(self, absolute_path, module_name):
         sys.path.append(str(absolute_path))
         self.module = import_module(module_name)
-        
+
     def load(self, entry_name, *args, **kwargs):
         """
         load a function from entry file
@@ -99,7 +109,9 @@ class HubEntries:
         list all available entries
         :return: list of entries
         """
-        function_names = [name for name, _ in insp.getmembers(self.module, insp.isfunction)]
+        function_names = [
+            name for name, _ in insp.getmembers(self.module, insp.isfunction)
+        ]
 
         return function_names
 
@@ -116,6 +128,7 @@ class HubEntries:
         spec = insp.getfullargspec(function)
         return spec
 
+
 def get_entries(path):
     """
     get enty point of a hub folder
@@ -126,53 +139,66 @@ def get_entries(path):
     print(path)
     return HubEntries(path.parent, path.name.replace(".py", ""))
 
-def classifier(config_id, embedding_path=None, correlation_path=None, feature_path=None, pretrained=False, freeze_feature=False, n_class=1): 
-    entries = get_entries("/content/drive/MyDrive/Lung_Xray/classification/SDM/hubconfig")
+
+def classifier(
+    config_id,
+    embedding_path=None,
+    correlation_path=None,
+    feature_path=None,
+    pretrained=False,
+    freeze_feature=False,
+    n_class=1,
+):
+    entries = get_entries(
+        "/content/drive/MyDrive/Lung_Xray/classification/SDM/hubconfig"
+    )
     features = entries.load("chexnext", config_id=config_id, pretrained=pretrained)
-    final_width = entries.load("config_dict", config_id=config_id)["stages_width"][-1][0]
+    final_width = entries.load("config_dict", config_id=config_id)["stages_width"][-1][
+        0
+    ]
     final_width = int(final_width)
-    print('final_width:', final_width)
-    
+    print("final_width:", final_width)
+
     if embedding_path is not None:
         embeddings = np.load(embedding_path)
         corr_matrix = np.load(correlation_path)
         print("embeddings.shape", embeddings.shape)
         print("corr_matrix.shape", corr_matrix.shape)
-        classifier = nn.Sequential(*[
-                GCN(final_width, embeddings, corr_matrix),
-                GlobalAverage(),
-                nn.Sigmoid()
-        ])
+        classifier = nn.Sequential(
+            *[GCN(final_width, embeddings, corr_matrix), GlobalAverage(), nn.Sigmoid()]
+        )
     else:
-        classifier = nn.Sequential(*[
-            nn.Conv2d(final_width, n_class, 3, padding=1),
-            GlobalAverage(),
-            nn.Sigmoid() if n_class == 1 else nn.Identity(),
-        ])
-    
+        classifier = nn.Sequential(
+            *[
+                nn.Conv2d(final_width, n_class, 3, padding=1),
+                GlobalAverage(),
+                nn.Sigmoid() if n_class == 1 else nn.Identity(),
+            ]
+        )
+
     model = nn.Sequential()
     model.features = features
     model.attention = SAModule(final_width)
-    
+
     if feature_path is not None:
         w = torch.load(feature_path, map_location="cpu")
-        #w = {k: w[k] for k in w if 'classifier' not in k}
+        # w = {k: w[k] for k in w if 'classifier' not in k}
         print(model.load_state_dict(w, strict=False))
-        
+
     if freeze_feature:
         print("Freeze feature")
         for p in model.parameters():
             p.requires_grad = False
-    
+
     model.classifier = classifier
 
     return model
 
 
-# def classifier(config_id, embedding_path=None, correlation_path=None, feature_path=None, pretrained=True, freeze_feature=False, n_class=1): 
+# def classifier(config_id, embedding_path=None, correlation_path=None, feature_path=None, pretrained=True, freeze_feature=False, n_class=1):
 #     features = densenet121(True).features
 #     final_width = features[-1].num_features
-    
+
 #     if embedding_path is not None:
 #       embeddings = np.load(embedding_path)
 #       corr_matrix = np.load(correlation_path)
@@ -190,29 +216,29 @@ def classifier(config_id, embedding_path=None, correlation_path=None, feature_pa
 #         #     nn.Sigmoid() if n_class == 1 else nn.Identity()
 #         #     ])
 
-#       classifier = nn.Sequential(*[     
+#       classifier = nn.Sequential(*[
 #           nn.AdaptiveAvgPool2d(1),
-#           nn.Flatten(), 
-#           nn.Linear(final_width, 256), 
+#           nn.Flatten(),
+#           nn.Linear(final_width, 256),
 #           # nn.Dropout(0.5),
 #           nn.Linear(256, 14),
 #           nn.Sigmoid()
 #          ])
-    
+
 #     model = nn.Sequential()
 #     model.features = features
 #     model.attention = SAModule(final_width)
-    
+
 #     if feature_path is not None:
 #         w = torch.load(feature_path, map_location="cpu")
 #         #w = {k: w[k] for k in w if 'classifier' not in k}
 #         print(model.load_state_dict(w, strict=False))
-        
+
 #     if freeze_feature:
 #         print("Freeze feature")
 #         for p in model.parameters():
 #             p.requires_grad = False
-    
+
 #     model.classifier = classifier
 
 #     return model

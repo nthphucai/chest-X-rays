@@ -1,6 +1,9 @@
-from parameter import * 
-import torch 
 from collections import defaultdict
+
+import torch
+
+from parameter import *
+
 
 class Lookahead(Optimizer):
     def __init__(self, optimizer, k=5, alpha=0.5):
@@ -12,7 +15,7 @@ class Lookahead(Optimizer):
         self.fast_state = self.optimizer.state
         for group in self.param_groups:
             group["counter"] = 0
-    
+
     def update(self, group):
         for fast in group["params"]:
             param_state = self.state[fast]
@@ -22,7 +25,7 @@ class Lookahead(Optimizer):
             slow = param_state["slow_param"]
             slow += (fast.data - slow) * self.alpha
             fast.data.copy_(slow)
-    
+
     def update_lookahead(self):
         for group in self.param_groups:
             self.update(group)
@@ -67,4 +70,3 @@ class Lookahead(Optimizer):
     def add_param_group(self, param_group):
         param_group["counter"] = 0
         self.optimizer.add_param_group(param_group)
-

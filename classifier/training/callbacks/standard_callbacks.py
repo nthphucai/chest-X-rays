@@ -1,8 +1,8 @@
 import collections
+import copy
 import csv
 import io
 import os
-import copy 
 
 import numpy as np
 import torch

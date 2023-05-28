@@ -1,10 +1,12 @@
+from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
-from dataclasses import dataclass
 
 """
 Load function from given path.
 """
+
+
 class HubEntries:
     def __init__(self, absolute_path, module_name):
         self.path = absolute_path

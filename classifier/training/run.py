@@ -1,17 +1,18 @@
 import os
 import sys
-import pandas as pd 
-import torch 
-from typing import Optional, List
-import wandb
 import warnings
-
 from dataclasses import dataclass, field
-from classifier.utils.file_utils import logger, read_yaml_file
-from classifier.training.trainer.standard_trainer import Trainer
-from classifier.training.trainer.config_runner import ConfigTrainer
+from typing import List, Optional
+
+import pandas as pd
+import torch
+import wandb
+
 # from classifier.data.data_loaders import get_dloader
 from classifier.models.classify import classifier
+from classifier.training.trainer.config_runner import ConfigTrainer
+from classifier.training.trainer.standard_trainer import Trainer
+from classifier.utils.file_utils import logger, read_yaml_file
 from classifier.utils.hf_argparser import HfArgumentParser
 
 
@@ -20,11 +21,12 @@ class ModelArguments:
     """
     Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
     """
+
     model_name_or_path: Optional[str] = field(
         default=None,
         metadata={"help": "Path to pretrained model or model identifier from ..."},
     )
-    
+
     cache_dir: Optional[str] = field(
         default=None,
         metadata={"help": "Where do you want to store the pretrained models"},
@@ -36,22 +38,30 @@ class ModelArguments:
     )
 
     output_dir: str = field(
-        default = None, 
-        metadata={"help": "The output directory where the model predictions and checkpoints will be written."},
+        default=None,
+        metadata={
+            "help": "The output directory where the model predictions and checkpoints will be written."
+        },
     )
 
     config_dir: Optional[str] = field(
-        default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"},
+        default=None,
+        metadata={
+            "help": "Pretrained tokenizer name or path if not the same as model_name"
+        },
     )
+
 
 @dataclass
 class DataTrainingArguments:
     train_dataset_path: Optional[str] = field(
-        default="output/data/train_dataset.pt", metadata={"help": "Path to train dataset"}
+        default="output/data/train_dataset.pt",
+        metadata={"help": "Path to train dataset"},
     )
 
     valid_dataset_path: Optional[str] = field(
-        default="output/data/valid_dataset.pt", metadata={"help": "Path to valid dataset"}
+        default="output/data/valid_dataset.pt",
+        metadata={"help": "Path to valid dataset"},
     )
 
 
@@ -60,10 +70,19 @@ class TrainingArguments:
     """
     Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
     """
-    local_rank: int = field(default=-1, metadata={"help": "For distributed training: local_rank"})
-    seed: int = field(default=42, metadata={"help": "Random seed that will be set at the beginning of training."})
+
+    local_rank: int = field(
+        default=-1, metadata={"help": "For distributed training: local_rank"}
+    )
+    seed: int = field(
+        default=42,
+        metadata={"help": "Random seed that will be set at the beginning of training."},
+    )
     report_to: Optional[List[str]] = field(
-        default=None, metadata={"help": "The list of integrations to report the results and logs to."}
+        default=None,
+        metadata={
+            "help": "The list of integrations to report the results and logs to."
+        },
     )
     train_batch_size: int = field(
         default=4, metadata={"help": "Batch size per GPU/TPU core/CPU for training."}
@@ -71,14 +90,16 @@ class TrainingArguments:
     eval_batch_size: int = field(
         default=4, metadata={"help": "Batch size per GPU/TPU core/CPU for evaluation."}
     )
-    
+
     num_train_epochs: int = field(
         default=4, metadata={"help": "Batch size per GPU/TPU core/CPU for evaluation."}
     )
 
     do_train: bool = field(default=True, metadata={"help": "Whether to run training."})
-    do_eval: bool = field(default=False, metadata={"help": "Whether to run eval on the dev set."})
-    
+    do_eval: bool = field(
+        default=False, metadata={"help": "Whether to run eval on the dev set."}
+    )
+
     save_model: bool = field(default=False, metadata={"help": "Whether to save model."})
 
     fp16: bool = field(
@@ -90,6 +111,7 @@ class TrainingArguments:
         default=None,
         metadata={"help": "Where do you want to store the pretrained models"},
     )
+
 
 def runner(
     train_dataset_path: str,
@@ -103,25 +125,26 @@ def runner(
     out_dir: str = None,
     log_dir: str = None,
     fp16: bool = False,
-    do_train: bool=True,
-    do_eval: bool=False
+    do_train: bool = True,
+    do_eval: bool = False,
 ):
-
     if not os.path.exists(os.path.dirname(log_dir)):
         os.makedirs(os.path.dirname(log_dir))
 
-    config = read_yaml_file(config_dir)["classifier"]    
+    config = read_yaml_file(config_dir)["classifier"]
     model = classifier(
-        gcn = False, 
-        # pretrained_path=model_args.model_path, 
-        pretrained_path=None, 
-        freeze_feature = False, 
-        n_class=14
+        gcn=False,
+        # pretrained_path=model_args.model_path,
+        pretrained_path=None,
+        freeze_feature=False,
+        n_class=14,
     )
 
     train_dataset = torch.load(train_dataset_path)
-    valid_dataset = torch.load(valid_dataset_path) if valid_dataset_path is not None else None
-    
+    valid_dataset = (
+        torch.load(valid_dataset_path) if valid_dataset_path is not None else None
+    )
+
     logger.info("The number of train samples: %s", len(train_dataset))
     logger.info("The number of eval samples: %s", len(valid_dataset))
 
@@ -137,7 +160,7 @@ def runner(
         log_dir=log_dir,
         fp16=fp16,
         do_train=do_train,
-        do_eval=do_eval
+        do_eval=do_eval,
     )
     trainer.train()
 
@@ -164,13 +187,13 @@ def main():
         log_dir=training_args.log_dir,
         fp16=training_args.fp16,
         do_train=training_args.do_train,
-        do_eval=training_args.do_eval    
-)
+        do_eval=training_args.do_eval,
+    )
 
 
 if __name__ == "__main__":
     main()
-    
+
 
 # def main(args_file=None):
 #     parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
@@ -182,20 +205,20 @@ if __name__ == "__main__":
 #         model_args, data_args, training_args = parser.parse_json_file(json_file=args_file_path)
 #     else:
 #         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-    
+
 #     # Setup logging
 #     logging.basicConfig(
 #         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
 #         datefmt="%m/%d/%Y %H:%M:%S",
 #         level=logging.INFO #if training_args.local_rank in [-1, 0] else logging.WARN,
 #     )
-    
+
 #     logging.warning(
 #         "Device: %s, n_gpu: %s",
 #         torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
 #         torch.cuda.device_count(),
 #     )
-    
+
 #     # Setup wandb
 #     if training_args.report_to is not None:
 #         if training_args.report_to == "wandb":
@@ -219,12 +242,12 @@ if __name__ == "__main__":
 #     # Initialize our Trainer
 #     configs = ConfigTrainer(model_config = model, config_path=training_args.config_path, verbose=None)()
 #     trainer = Trainer(
-#                 model = model, 
+#                 model = model,
 #                 train_data = train_dataloader,
-#                 val_data = val_dataloader,  
-#                 loss = configs["loss"], 
-#                 optimizer = configs["opt"], 
-#                 scheduler = configs["scheduler"], 
+#                 val_data = val_dataloader,
+#                 loss = configs["loss"],
+#                 optimizer = configs["opt"],
+#                 scheduler = configs["scheduler"],
 #                 metric = configs["metric"],
 #                 num_train_epochs = training_args.num_train_epochs,
 #                 output_dir = training_args.output_dir,
@@ -237,11 +260,10 @@ if __name__ == "__main__":
 #     if training_args.do_train:
 #         trainer.run(mode = ["train"])
 
-#     # Evaluation 
+#     # Evaluation
 #     if training_args.do_eval:
 #         logging.info("*** Evaluation ***")
 #         trainer.run(mode = ["valid"])
 
 # if __name__ == "__main__":
 #     main()
-

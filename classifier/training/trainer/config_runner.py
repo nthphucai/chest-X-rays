@@ -1,28 +1,21 @@
-import torch
-import torch.nn as nn 
-
-from ...training.losses import __mapping__ as loss_maps
-from ...training.callbacks import __mapping__ as callbacks
-from ...training.optimizers import __mapping__ as opt_maps
-from ...training.schedulers import __mapping__ as scheduler_maps
-from ...training.metrics import __mapping__ as metric_maps
-
 import json
 from typing import Optional, Union
 
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 from torch.utils.data import Dataset
 
+from ...data.data_loaders.processor import DataProcessor
+from ...training.callbacks import __mapping__ as callback_maps
+from ...training.callbacks import __mapping__ as callbacks
 # from ...models import model_maps
 from ...training.losses import __mapping__ as loss_maps
 from ...training.metrics import __mapping__ as metric_maps
-from ...training.callbacks import __mapping__ as callback_maps
+from ...training.optimizers import __mapping__ as opt_maps
 from ...training.optimizers import __mapping__ as optimizer_maps
 from ...training.schedulers import __mapping__ as scheduler_maps
 from ...training.trainer.standard_trainer import Trainer
-from ...data.data_loaders.processor import DataProcessor
 
 
 class ConfigTrainer:
@@ -39,7 +32,7 @@ class ConfigTrainer:
         log_dir: str = None,
         fp16: bool = False,
         do_train: bool = True,
-        do_eval: bool = False, 
+        do_eval: bool = False,
     ):
         self.config = config
         self.save_config_path = save_config_path
@@ -57,10 +50,12 @@ class ConfigTrainer:
         self.fp16 = fp16
 
         print("creating train, valid loader") if verbose else None
-        self.dl_train, self.dl_valid = self._get_dataloader(train_dataset, valid_dataset)
+        self.dl_train, self.dl_valid = self._get_dataloader(
+            train_dataset, valid_dataset
+        )
 
         print("creating model") if verbose else None
-        self.model = model #self._get_model(model_config) if model is None else model
+        self.model = model  # self._get_model(model_config) if model is None else model
         if verbose:
             print("printing model to model.txt")
 
@@ -77,7 +72,7 @@ class ConfigTrainer:
         print("metrics: ", self.metrics) if verbose else None
 
         self.optimizer = self._get_optimizer(opt_config=opt_config)
-        # self.optimizer = optimizer_maps["look_ahead"](self.optimizer, k=5, alpha=0.5) 
+        # self.optimizer = optimizer_maps["look_ahead"](self.optimizer, k=5, alpha=0.5)
         print("optimizer: ", self.optimizer) if verbose else None
 
         self.scheduler = None
@@ -86,12 +81,14 @@ class ConfigTrainer:
         self.callbacks = self._get_callbacks(callbacks_configs)
         print("callbacks: ", self.callbacks) if verbose else None
 
-        self.mode = ("train", "eval") if do_eval and do_train else ("train", )
+        self.mode = ("train", "eval") if do_eval and do_train else ("train",)
 
     def _get_dataloader(self, train_dataset, valid_dataset):
         processor = DataProcessor(batch_size=2, workers=2)
-        train_dataloaders = processor.get_dloader(train_dataset) 
-        valid_dataloaders = processor.get_dloader(valid_dataset) if valid_dataset is not None else None
+        train_dataloaders = processor.get_dloader(train_dataset)
+        valid_dataloaders = (
+            processor.get_dloader(valid_dataset) if valid_dataset is not None else None
+        )
 
         minibatch = next(iter(train_dataloaders))
         print("img shape:", minibatch[0].shape)

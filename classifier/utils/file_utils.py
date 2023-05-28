@@ -10,7 +10,6 @@ from typing import List, Optional
 import pandas as pd
 import yaml
 
-
 # Setup logging
 logger = logging.getLogger(__name__)
 logging.basicConfig()
@@ -114,4 +113,3 @@ def load_dataframe_file(path: str, convert_to_json: bool = True):
 
 def unzip(zip_path, extract_path):
     shutil.unpack_archive(filename=zip_path, extract_dir=extract_path)
-

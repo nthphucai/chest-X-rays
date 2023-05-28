@@ -1,7 +1,9 @@
-import os 
-import pandas as pd
+import os
+
+import nibabel as nib
 import numpy as np
-import nibabel as nib 
+import pandas as pd
+
 
 def df_image_mask_path(root):
     
