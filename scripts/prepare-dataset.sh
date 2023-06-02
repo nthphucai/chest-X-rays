@@ -1,10 +1,9 @@
 #!/bin/bash
 set -e
 
-python classifier/data/prepare_data.py \
+python classifier/data/prepare_dataset.py \
     --data_path data/vinbigdata/vin_train_val.csv \
-    --out_path /content/drive/MyDrive/Classification2D/chest-X-rays/data \
-    --config_path configs/preprocess_pipeline.yaml \
+    --out_path output/dataset \
     --classes data/vinbigdata/vin_classes_14.npy \
     --train_file_name train_dataset.pt \
     --valid_file_name valid_dataset.pt \

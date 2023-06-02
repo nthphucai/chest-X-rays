@@ -20,3 +20,5 @@ typing_extensions==4.4.0
 urllib3==1.26.12
 wandb==0.13.4
 lungs-segmentation
+pandas
+wandb
