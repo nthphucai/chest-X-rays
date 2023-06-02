@@ -1,8 +1,9 @@
 from .clr import LrFinder, SuperConvergence, WarmRestart
+from .integration import WandbCallback
 from .standard_callbacks import (CSVLogger, EarlyStopping, ModelCheckpoint,
                                  ReduceLROnPlateau, Tensorboard)
 
-__mapping__ = {
+callback_maps = {
     "csv_logger": CSVLogger,
     "tensorboard": Tensorboard,
     "plateau": ReduceLROnPlateau,
@@ -11,4 +12,5 @@ __mapping__ = {
     "super_convergence": SuperConvergence,
     "lr_finder": LrFinder,
     "warm_restart": WarmRestart,
+    "report_to_wandb": WandbCallback,
 }

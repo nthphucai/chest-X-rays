@@ -3,12 +3,13 @@ import os
 import numpy as np
 import torch
 import torch.optim as opts
+import wandb
 
-from .base_class import Callback
+from .base_class import TrainerCallback
 
 
-class LrFinder(Callback):
-    def __init__(self, min_lr=1e-5, max_lr=1, epochs=1, use_plotly=False):
+class LrFinder(TrainerCallback):
+    def __init__(self, min_lr=1e-5, max_lr=1e-3, epochs=1, use_plotly=False):
         """
         Callback for finding task specific learning rate
         :param min_lr: learning rate lower bound
@@ -30,15 +31,13 @@ class LrFinder(Callback):
     def on_train_begin(self, **train_configs):
         epochs = self.epochs
         iterations = len(train_configs["train_loader"])
-        # for g in self.optimizers[0].param_groups:
-        for g in self.optimizers.param_groups:
+        for g in self.optimizers[0].param_groups:
             g["lr"] = self.min_lr
 
         self.gamma = (self.max_lr - self.min_lr) / (epochs * iterations)
 
     def on_training_batch_end(self, epoch, step, data, caches=None, logs=None):
-        for i, g in enumerate(self.optimizers.param_groups):
-            # for i, g in enumerate(self.optimizers[0].param_groups):
+        for i, g in enumerate(self.optimizers[0].param_groups):
             if i in self.history:
                 self.history[i].append((g["lr"], logs))
             else:
@@ -46,21 +45,20 @@ class LrFinder(Callback):
 
             g["lr"] = g["lr"] + self.gamma
 
+            # logs_ = {"train/learning_rate": g["lr"], "train/batch_loss": logs["loss"]}
+            # wandb.log({**logs_})
+
     def on_epoch_end(self, epoch, logs=None):
         self.trainer.training = epoch < self.epochs
 
     def on_train_end(self):
         self.plot_data()
 
-    # def get_data(self, group=0, target="Loss"):
-    #     for lr, logs in self.history[group]:
-    #         yield lr, logs[target]
+    def get_data(self, group=0, target="loss"):
+        for lr, logs in self.history[group]:
+            yield lr, logs[target]
 
-    def get_data(self, group=0, target="Loss"):
-        for lr, logs in self.history[0]:
-            yield lr, logs
-
-    def plot_data(self, group=0, target="Loss"):
+    def plot_data(self, group=0, target="loss"):
         lrs, targets = zip(*self.get_data(group, target))
 
         if self.use_plotly:
@@ -84,7 +82,7 @@ class LrFinder(Callback):
         return f"min_lr={self.min_lr}, max_lr={self.max_lr}, epochs={self.epochs}, use_plotly={self.use_plotly}"
 
 
-class WarmRestart(Callback):
+class WarmRestart(TrainerCallback):
     def __init__(
         self,
         min_lr=0,
@@ -171,7 +169,7 @@ class WarmRestart(Callback):
         )
 
 
-class SuperConvergence(Callback):
+class SuperConvergence(TrainerCallback):
     def __init__(
         self,
         epochs,
@@ -233,7 +231,7 @@ class SuperConvergence(Callback):
         )
 
 
-class Warmup(Callback):
+class Warmup(TrainerCallback):
     def __init__(self, init_lr, final_lr, n_epoch=1):
         super().__init__()
 

@@ -9,12 +9,12 @@ import torch
 import torch.optim.lr_scheduler as schedulers
 from torch.utils.tensorboard import SummaryWriter
 
-from .base_class import Callback
+from .base_class import TrainerCallback
 
 
-class ReduceLROnPlateau(Callback):
+class ReduceLROnPlateau(TrainerCallback):
     def __init__(
-        self, monitor="val loss", patience=5, mode="min", factor=0.1, verbose=1
+        self, monitor="eval_loss", patience=5, mode="min", factor=0.1, verbose=1
     ):
         super().__init__()
 
@@ -47,8 +47,8 @@ class ReduceLROnPlateau(Callback):
         )
 
 
-class EarlyStopping(Callback):
-    def __init__(self, monitor="val loss", patience=10, mode="min", verbose=1):
+class EarlyStopping(TrainerCallback):
+    def __init__(self, monitor="eval_loss", patience=10, mode="min", verbose=1):
         super().__init__()
 
         self.monitor = monitor
@@ -86,11 +86,11 @@ class EarlyStopping(Callback):
         return f"monitor={self.monitor}, patience={self.patience}, mode={self.mode}, verbose={self.verbose}"
 
 
-class ModelCheckpoint(Callback):
+class ModelCheckpoint(TrainerCallback):
     def __init__(
         self,
         file_path,
-        monitor="val loss",
+        monitor="eval_loss",
         mode="min",
         save_best_only=True,
         overwrite=True,
@@ -142,7 +142,7 @@ class ModelCheckpoint(Callback):
         )
 
 
-class CSVLogger(Callback):
+class CSVLogger(TrainerCallback):
     """Callback that streams epoch results to a csv file.
 
     Supports all values that can be represented as a string,
@@ -226,7 +226,7 @@ class CSVLogger(Callback):
         return f"filename={self.filename}, separator={self.sep}, append={self.append}"
 
 
-class Tensorboard(Callback):
+class Tensorboard(TrainerCallback):
     def __init__(self, log_dir, steps=50, flushes=2, inputs=None, current_step=0):
         super().__init__()
 
