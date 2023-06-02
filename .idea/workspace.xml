@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5050bf14-2019-46ca-9dd4-052cac755b98" name="Changes" comment="refactor(models): refactor models and del tests" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="cb3eb4b0-ec1d-43c4-8bb1-f52f6c12980d" />
+        <option name="url" value="https://github.com/nthphucai/chest-X-rays.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/classifier/modules/segment_lungs.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2QPgBpUAhKYInybH5bq9MPZq01P" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.mappings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.symlinks&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.date&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.permissions&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.size&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/HPhuc/Practice/12. classification/chextnet&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/classifier" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5050bf14-2019-46ca-9dd4-052cac755b98" name="Changes" comment="" />
+      <created>1685260498188</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1685260498188</updated>
+      <workItem from="1685260500234" duration="341000" />
+      <workItem from="1685260847522" duration="6781000" />
+      <workItem from="1685281017209" duration="9149000" />
+      <workItem from="1685414055276" duration="21606000" />
+      <workItem from="1685457943582" duration="2452000" />
+      <workItem from="1685507470963" duration="496000" />
+      <workItem from="1685507971043" duration="2229000" />
+      <workItem from="1685621667037" duration="149000" />
+      <workItem from="1685621819233" duration="904000" />
+      <workItem from="1685623223174" duration="11996000" />
+      <workItem from="1685707736996" duration="3290000" />
+      <workItem from="1685712648130" duration="2352000" />
+      <workItem from="1685715006998" duration="256000" />
+      <workItem from="1685715266241" duration="825000" />
+    </task>
+    <task id="LOCAL-00001" summary="chore(segment_lungs): add docstring to segment_lungs">
+      <created>1685283072155</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1685283072155</updated>
+    </task>
+    <task id="LOCAL-00002" summary="upload repos from google colab">
+      <created>1685284308154</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1685284308154</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat(segment_lungs): add cropped_img_path and save to csv">
+      <created>1685713199012</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1685713199012</updated>
+    </task>
+    <task id="LOCAL-00004" summary="refactor: metrics, losses, lookahead&#10;&#10;*Remove _classify, _segment and merge into fscore&#10;*Add zero_grad to lookahead&#10;*Clean losses">
+      <created>1685713335509</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1685713335509</updated>
+    </task>
+    <task id="LOCAL-00005" summary="chore(scripts): update scripts and requirements">
+      <created>1685713437975</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1685713437975</updated>
+    </task>
+    <task id="LOCAL-00006" summary="chore(configs): update configs">
+      <created>1685713595175</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1685713595175</updated>
+    </task>
+    <task id="LOCAL-00007" summary="refactor(callbacks): refactor callbacks&#10;&#10;*Add integration for wandb&#10;*Clean set_trainer in base_class.py&#10;*Rename Callback to TrainerCallback">
+      <created>1685714278809</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1685714278809</updated>
+    </task>
+    <task id="LOCAL-00008" summary="refactor(optimizer): add zero_grad to lookahead and init to schedulers">
+      <created>1685714362985</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1685714362985</updated>
+    </task>
+    <task id="LOCAL-00009" summary="refactor(trainer): refactor code&#10;&#10;*Add callbacks to base_trainer&#10;*Refactor config_runner, standard_trainer&#10;*Rename run.py to train.py&#10;*Add arguments(model_type, batch_size) to train">
+      <created>1685714568775</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1685714568775</updated>
+    </task>
+    <task id="LOCAL-00010" summary="refactor(models): refactor models and del tests">
+      <created>1685714923199</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1685714923199</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="chore(segment_lungs): add docstring to segment_lungs" />
+    <MESSAGE value="upload repos from google colab" />
+    <MESSAGE value="feat(segment_lungs): add cropped_img_path and save to csv" />
+    <MESSAGE value="refactor: metrics, losses, lookahead&#10;&#10;*Remove _classify, _segment and merge into fscore&#10;*Add zero_grad to lookahead&#10;*Clean losses" />
+    <MESSAGE value="chore(scripts): update scripts and requirements" />
+    <MESSAGE value="chore(configs): update configs" />
+    <MESSAGE value="refactor(callbacks): refactor callbacks&#10;&#10;*Add integration for wandb&#10;*Clean set_trainer in base_class.py&#10;*Rename Callback to TrainerCallback" />
+    <MESSAGE value="refactor(optimizer): add zero_grad to lookahead and init to schedulers" />
+    <MESSAGE value="refactor(trainer): refactor code&#10;&#10;*Add callbacks to base_trainer&#10;*Refactor config_runner, standard_trainer&#10;*Rename run.py to train.py&#10;*Add arguments(model_type, batch_size) to train" />
+    <MESSAGE value="refactor(models): refactor models and del tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor(models): refactor models and del tests" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/classifier/models/classify.py</url>
+          <line>38</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

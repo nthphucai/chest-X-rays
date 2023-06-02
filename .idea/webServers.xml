@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="bd81c0b8-b248-4a30-b7d0-559c702a6063" name="colab">
+        <fileTransfer rootFolder="/content/drive/MyDrive/Classification2D/chest-X-rays/" accessType="SFTP" host="2.tcp.ngrok.io" port="12576" sshConfigId="d69dbe4e-241c-4e47-9a76-c7aa67abaac6" sshConfig="colab">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
