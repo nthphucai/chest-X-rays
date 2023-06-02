@@ -1,5 +1,5 @@
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+import torch.optim as optim
 
-__mapping__ = {
-    "reducelronplateau": ReduceLROnPlateau,
+scheduler_maps = {
+    "reduce_plateu": optim.lr_scheduler.ReduceLROnPlateau,
 }

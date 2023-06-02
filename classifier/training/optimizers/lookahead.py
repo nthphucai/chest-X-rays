@@ -1,4 +1,3 @@
-import warnings
 from collections import defaultdict
 from itertools import chain
 
@@ -6,7 +5,6 @@ import torch
 from torch.optim import Optimizer
 
 
-# Look ahead optimizer
 class Lookahead(Optimizer):
     def __init__(self, optimizer, k=5, alpha=0.5):
         self.optimizer = optimizer
@@ -31,6 +29,9 @@ class Lookahead(Optimizer):
     def update_lookahead(self):
         for group in self.param_groups:
             self.update(group)
+
+    def zero_grad(self, set_to_none: bool = False):
+        self.optimizer.zero_grad()
 
     def step(self, closure=None):
         loss = self.optimizer.step(closure)
