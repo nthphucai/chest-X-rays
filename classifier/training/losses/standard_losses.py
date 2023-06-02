@@ -121,11 +121,6 @@ class FocalDiceLoss(nn.Module):
         ) / (self.weight + 1)
 
 
-""""
-BCE
-"""
-
-
 class BCE(nn.Module):
     def __init__(self, label_smoothing=0.05):
         super().__init__()

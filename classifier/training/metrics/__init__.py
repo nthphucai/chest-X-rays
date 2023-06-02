@@ -1,7 +1,7 @@
-from classifier.training.metrics._classify import (Accuracy, AUCScore, F1Score,
-                                                   prec_recall_fscore_support)
+from classifier.training.metrics.fscore import (Accuracy, AUCScore, F1Score,
+                                                prec_recall_fscore_support)
 
-__mapping__ = {
+metric_maps = {
     "auc": AUCScore,
     "accuracy": Accuracy,
     "f1": F1Score,
