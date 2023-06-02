@@ -3,7 +3,7 @@ from torchvision.models import densenet121
 
 
 class ChexNet(nn.Module):
-    def __init__(self, trained=False, model_name="20210223-095555"):
+    def __init__(self):
         super().__init__()
 
         self.backbone = densenet121(False).features

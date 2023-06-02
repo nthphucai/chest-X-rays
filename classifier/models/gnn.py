@@ -5,6 +5,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import inspect as insp
+import sys
+from importlib import import_module
+
 from classifier.models.modules.attentions import SAModule
 from classifier.models.modules.commons import GlobalAverage
 
@@ -73,17 +77,7 @@ class GCN(nn.Module):
         embeddings = embeddings.view(-1, x.shape[1], 3, 3)
         scores = F.conv2d(x, embeddings, bias=self.bias, padding=1)
         #         scores = F.linear(x, embeddings, bias=self.bias)
-
         return scores
-
-
-"""
-hubconfig
-"""
-import inspect as insp
-import sys
-from importlib import import_module
-
 
 class HubEntries:
     def __init__(self, absolute_path, module_name):
@@ -193,65 +187,3 @@ def classifier(
     model.classifier = classifier
 
     return model
-
-
-# def classifier(config_id, embedding_path=None, correlation_path=None, feature_path=None, pretrained=True, freeze_feature=False, n_class=1):
-#     features = densenet121(True).features
-#     final_width = features[-1].num_features
-
-#     if embedding_path is not None:
-#       embeddings = np.load(embedding_path)
-#       corr_matrix = np.load(correlation_path)
-#       print("embeddings.shape", embeddings.shape)
-#       print("corr_matrix.shape", corr_matrix.shape)
-#       classifier = nn.Sequential(*[
-#               GCN(final_width, embeddings, corr_matrix),
-#               GlobalAverage(),
-#               nn.Sigmoid()
-#       ])
-#     else:
-#         # classifier = nn.Sequential(*[
-#         #     nn.Conv2d(final_width, n_class, 3, padding=1),
-#         #     GlobalAverage(),
-#         #     nn.Sigmoid() if n_class == 1 else nn.Identity()
-#         #     ])
-
-#       classifier = nn.Sequential(*[
-#           nn.AdaptiveAvgPool2d(1),
-#           nn.Flatten(),
-#           nn.Linear(final_width, 256),
-#           # nn.Dropout(0.5),
-#           nn.Linear(256, 14),
-#           nn.Sigmoid()
-#          ])
-
-#     model = nn.Sequential()
-#     model.features = features
-#     model.attention = SAModule(final_width)
-
-#     if feature_path is not None:
-#         w = torch.load(feature_path, map_location="cpu")
-#         #w = {k: w[k] for k in w if 'classifier' not in k}
-#         print(model.load_state_dict(w, strict=False))
-
-#     if freeze_feature:
-#         print("Freeze feature")
-#         for p in model.parameters():
-#             p.requires_grad = False
-
-#     model.classifier = classifier
-
-#     return model
-
-# #=======================================
-# config_id = 2
-# embedding_path = "/content/drive/MyDrive/Classification2D/Source/outputs/embeddings_14.npy"
-# #print(np.load(embedding_path))
-# correlation_path = "/content/drive/MyDrive/Classification2D/Source/outputs/correlations_14.npy"
-# # print(np.load(correlation_path))
-# model = classifier(config_id=None, embedding_path=embedding_path, correlation_path=correlation_path, feature_path=None, pretrained=False, freeze_feature=False, n_class=14)
-# # model = classifier(config_id=None, embedding_path=None, correlation_path=correlation_path, feature_path=None, pretrained=False, freeze_feature=False, n_class=14)
-
-# x = torch.rand(1,3,256,256)
-# print(model(x).shape)
-# print(model(x))
