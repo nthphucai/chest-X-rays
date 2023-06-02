@@ -4,15 +4,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Union
 
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader as load_batch
-from scipy import ndimage
 import albumentations as A
 import cv2
 import numpy as np
 import pandas as pd
+import torch
+import torch.nn as nn
 from lungs_segmentation.pre_trained_models import create_model
+from scipy import ndimage
+from torch.utils.data import DataLoader as load_batch
 
 from classifier.utils.hf_argparser import HfArgumentParser
 from classifier.utils.utils import get_progress
@@ -22,7 +22,7 @@ from classifier.utils.utils import get_progress
 class SegmentArguments:
     model_name_or_path: Optional[str] = field(
         default="resnet34",
-        metadata={"help": "Path for pretrained model or model name."}
+        metadata={"help": "Path for pretrained model or model name."},
     )
 
     data_path: Optional[str] = field(
@@ -36,13 +36,11 @@ class SegmentArguments:
     )
 
     img_size: Optional[int] = field(
-        default=256,
-        metadata={"help": "The desired size for input images"}
+        default=256, metadata={"help": "The desired size for input images"}
     )
 
     batch_size: Optional[int] = field(
-        default=256,
-        metadata={"help": "The batch size for processing images"}
+        default=16, metadata={"help": "The batch size for processing images"}
     )
 
 
@@ -225,7 +223,7 @@ def crop_lung(
     img_size: int = 256,
     batch_size: int = 4,
 ):
-    data = pd.read_csv(data_path, index_col=0)[:1000]
+    data = pd.read_csv(data_path, index_col=0)
     model = SegmentLung.load_unet_model(model_name_or_path)
 
     segment_lung = SegmentLung(
@@ -233,6 +231,12 @@ def crop_lung(
     )
 
     segment_lung.segment(model=model, data=data)
+
+    # add cropped_img_path and save to csv
+    for idc, image_id in enumerate(data["image_id"].values):
+        data.loc[idc, "cropped_img_path"] = f"output/vin-lung-seg/{image_id}.png.npy"
+
+    data.to_csv(data_path)
 
 
 if __name__ == "__main__":
