@@ -1,14 +1,11 @@
 from abc import abstractmethod
-from typing import List
 
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 
-from classifier.utils.utils import get_progress
+from ...utils.utils import get_progress
 
 
 class BaseTrainer:
@@ -28,7 +25,6 @@ class BaseTrainer:
         self.loss = loss
         self.optimizer = optimizer
         self.scheduler = scheduler
-        self.score = metric
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model.to(self.device)
@@ -40,7 +36,7 @@ class BaseTrainer:
         loss = self.loss(preds, targets)
         return loss, preds
 
-    def _train_one_epoch(self, epoch: int, callbacks):
+    def _train_one_epoch(self, epoch: int, callbacks=[]):
         total_loss = 0.0
         subscore = 0.0
 
@@ -72,7 +68,7 @@ class BaseTrainer:
         subscore, score = self._measures_one_epoch(subscore, self.dl_train)
         return train_loss, score, subscore
 
-    def _val_one_epoch(self, epoch: int):
+    def _val_one_epoch(self, epoch: int, callbacks=[]):
         total_loss = 0.0
         subscore = 0.0
 
@@ -100,7 +96,7 @@ class BaseTrainer:
                     ]
 
         val_loss = total_loss / len(self.dl_val)
-        self.subscore, score = self._measures_one_epoch(subscore, self.dl_val)
+        subscore, score = self._measures_one_epoch(subscore, self.dl_val)
         return val_loss, score, subscore
 
     def _extract_loader(self, batch_data):
