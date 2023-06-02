@@ -4,20 +4,17 @@ name: classifier
 classifier:
   criterion:
     name: wbce
-    weights_path: output/weights_14.csv
-    device: cuda
+    class_weight: output/weights_14.csv
+    device: cpu
   metric: 
     name: "auc"
     binary: True
-    classes: "data/nih/nih_classes_14.npy"
+    classes: "data/vinbigdata/vin_classes_14.npy"
   optimizer: 
     name: adam
     lr: 1.e-4
-  scheduler": 
-      name: "ReduceLROnPlateau"
-      mode: "min"
-      factor: 0.5,
-      patience: 2
-  verbose: False
+  scheduler:
+    name: reduce_plateu
+  callbacks: [ { "name": "report_to_wandb" } ]
 
     
