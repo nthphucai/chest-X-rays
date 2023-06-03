@@ -4,17 +4,23 @@ import torch.nn as nn
 from torchvision.models import densenet121
 
 from .chexnet import ChexNet
-# from .gcn import GCN
+from .gcn_v2 import GCN as GCN_v2
 from .gnn import GCN
 from .modules.attentions import SAModule
 from .modules.commons import GlobalAverage
 
+GCN_TASK = {
+    "gcn_v1": GCN,
+    "gcn_v2": GCN_v2
+}
 
 def classifier(
     backbone: str = None,
     gcn=True,
     pretrained_path=None,
     freeze_feature=False,
+    embedding_path="data/vinbigdata/vin_embeddings_14.npy",
+    correlation_path="data/vinbigdata/vin_correlations_14.npy",
     n_class=14,
 ):
     if "densenet121" in backbone:
@@ -29,14 +35,19 @@ def classifier(
     print("final_width", final_width)
 
     if gcn:
-        embedding_path = "data/vinbigdata/vin_classes_14.npy"
-        correlation_path = "data/vinbigdata/vin_correlations_14.npy"
         embeddings = np.load(embedding_path)
         corr_matrix = np.load(correlation_path)
         print("embeddings.shape", embeddings.shape)
         print("corr_matrix.shape", corr_matrix.shape)
+
+        # classifier = nn.Sequential(
+        #      *[GlobalAverage(), GCN(300, final_width, embeddings, corr_matrix)]
+        # )
+
         classifier = nn.Sequential(
-            *[GlobalAverage(), GCN(300, final_width, embeddings, corr_mclearatrix)]
+            *[GCN(final_width, embeddings, corr_matrix),
+            GlobalAverage(),
+            nn.Sigmoid()]
         )
 
     else:
@@ -53,7 +64,6 @@ def classifier(
     model.features = features
     model.dropout = nn.Dropout(0.5)
     model.attention = SAModule(final_width)
-    model.classifier = classifier
 
     if pretrained_path is not None:
         print(f"pretrained_path:", pretrained_path)
@@ -64,6 +74,9 @@ def classifier(
         print("Freeze feature")
         for p in model.features.parameters():
             p.requires_grad = False
+
+    model.classifier = classifier
+
     return model
 
 
