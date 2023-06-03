@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 import torch
-import wandb
 
+import wandb
 from classifier.models.classify import classifier
 from classifier.training.trainer.config_runner import ConfigTrainer
 from classifier.utils.file_utils import logger, read_yaml_file
@@ -53,6 +53,11 @@ class ModelArguments:
     )
     num_classes: Optional[int] = field(
         default=14, metadata={"help": "Number of classed to be classfied"}
+    )
+
+    use_gcn: Optional[bool] = field(
+        default=False,
+        metadata={"help": "Whether to apply gcn"},
     )
 
 
@@ -116,9 +121,11 @@ def runner(
     valid_dataset_path: Optional[str],
     config_dir: str,
     model_name_or_path: str,
-    cache_dir: Optional[str],
+    model_type: str = "chextnext",
+    cache_dir: Optional[str] = None,
     freeze_feature: bool = False,
     num_classes: int = 14,
+    use_gcn: bool = False,
     num_train_epochs: str = 2,
     out_dir: str = None,
     log_dir: str = None,
@@ -132,11 +139,35 @@ def runner(
     if not os.path.exists(os.path.dirname(log_dir)):
         os.makedirs(os.path.dirname(log_dir))
 
+    # Setup logging
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+        datefmt="%m/%d/%Y %H:%M:%S",
+        level=logging.INFO,
+    )
+
+    logging.warning(
+        "Device: %s, n_gpu: %s",
+        torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
+        torch.cuda.device_count(),
+    )
+    # Setup wandb
+    if report_to is not None:
+        if report_to == "wandb":
+            wandb.login()
+            wandb.init(
+                project="kidney-segment",
+                name=model_name_or_path,
+                group=model_type,
+                tags=["baseline", "unet"],
+                job_type="train",
+            )
+
     config = read_yaml_file(config_dir)["classifier"]
 
     model = classifier(
         backbone=model_name_or_path,
-        gcn=False,
+        gcn=use_gcn,
         pretrained_path=cache_dir,
         freeze_feature=freeze_feature,
         n_class=num_classes,
@@ -175,39 +206,17 @@ def main():
     )
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    # Setup logging
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO,
-    )
-
-    logging.warning(
-        "Device: %s, n_gpu: %s",
-        torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
-        torch.cuda.device_count(),
-    )
-    # Setup wandb
-    if training_args.report_to is not None:
-        if training_args.report_to[0] == "wandb":
-            wandb.login()
-            wandb.init(
-                project="thoracic-classfier",
-                name=model_args.model_name_or_path,
-                group=model_args.model_type,
-                tags=["baseline", "unet"],
-                job_type="train",
-            )
-
     runner(
         train_dataset_path=data_args.train_dataset_path,
         valid_dataset_path=data_args.valid_dataset_path,
         config_dir=model_args.config_dir,
         model_name_or_path=model_args.model_name_or_path,
+        model_type=model_args.model_type,
         out_dir=model_args.output_dir,
         cache_dir=model_args.cache_dir,
         freeze_feature=model_args.freeze_feature,
         num_classes=model_args.num_classes,
+        use_gcn=model_args.use_gcn,
         num_train_epochs=training_args.num_train_epochs,
         log_dir=training_args.log_dir,
         fp16=training_args.fp16,
