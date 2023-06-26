@@ -3,6 +3,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def _assert_inputs(pred, true):
     assert (
@@ -11,7 +12,7 @@ def _assert_inputs(pred, true):
 
 
 class WBCE(nn.Module):
-    def __init__(self, weights_path=None, label_smoothing=None, device="cpu"):
+    def __init__(self, weights_path=None, label_smoothing=None):
         super().__init__()
 
         if weights_path is None:

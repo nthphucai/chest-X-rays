@@ -17,21 +17,21 @@ from ...training.trainer.standard_trainer import Trainer
 
 class ConfigTrainer:
     def __init__(
-        self,
-        train_dataset: Dataset,
-        valid_dataset: Optional[Dataset],
-        model: Optional[nn.Module] = None,
-        config: dict = None,
-        save_config_path: str = None,
-        verbose: bool = False,
-        num_train_epochs: int = 2,
-        out_dir: str = None,
-        log_dir: str = None,
-        fp16: bool = False,
-        do_train: bool = True,
-        do_eval: bool = False,
-        per_device_train_batch_size: int = 2,
-        per_device_eval_batch_size: int = 2,
+            self,
+            train_dataset: Dataset,
+            valid_dataset: Optional[Dataset],
+            model: Optional[nn.Module] = None,
+            config: dict = None,
+            save_config_path: str = None,
+            verbose: bool = False,
+            num_train_epochs: int = 2,
+            out_dir: str = None,
+            log_dir: str = None,
+            fp16: bool = False,
+            do_train: bool = True,
+            do_eval: bool = False,
+            per_device_train_batch_size: int = 2,
+            per_device_eval_batch_size: int = 2,
     ):
         self.config = config
         self.save_config_path = save_config_path
@@ -108,7 +108,8 @@ class ConfigTrainer:
             drop_last=drop_last,
         )
 
-    def get_eval_dataloader(self, dataset, **kwargs) -> DataLoader:
+    @staticmethod
+    def get_eval_dataloader(dataset, **kwargs) -> DataLoader:
         shuffle = kwargs.get("shuffle", False)
         workers = kwargs.get("workers", True)
         pin_memory = kwargs.get("pin_memory", True)
@@ -162,12 +163,16 @@ class ConfigTrainer:
 
     def _get_optimizer(self, opt_config):
         name = opt_config["name"]
-        opt = optimizer_maps[name]
-        kwargs = self.get_kwargs(opt_config, ["name"])
+        kwargs = self.get_kwargs(opt_config, excludes=["name", "checkpoint"])
+
+        if name in optimizer_maps:
+            opt = optimizer_maps[name]
+        else:
+            raise NotImplementedError(f"only support {optimizer_maps.keys()}")
 
         if "checkpoint" in opt_config:
             opt.load_state_dict(
-                torch.load(opt_config["checkpoint"], map_location="cpu")
+                state_dict=torch.load(opt_config["checkpoint"], map_location="cpu")
             )
 
         opt = opt([p for p in self.model.parameters() if p.requires_grad], **kwargs)

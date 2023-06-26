@@ -75,7 +75,7 @@ class BaseTrainer:
         self.model.eval()
         with torch.no_grad():
             with get_progress(total=len(self.dl_val)) as pbar:
-                for step, batch_data in enumerate(self.dl_train):
+                for step, batch_data in enumerate(self.dl_val):
                     data = self._extract_loader(batch_data)
                     imgs, targets = data
 

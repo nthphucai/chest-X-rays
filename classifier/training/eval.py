@@ -11,7 +11,6 @@ from tqdm import tqdm
 class ThoracicClassifierEvaluator:
     def __init__(
         self,
-        model: nn.Module,
         data_loader: DataLoader,
         binary: bool,
         classes: Union[np.array, List]
@@ -21,19 +20,20 @@ class ThoracicClassifierEvaluator:
         self.data_loader = data_loader
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model = model.to(self.device)
 
-    def evaluate(self):
+    def evaluate(self, model: nn.Module):
         trues = []
         preds = []
 
-        self.model.eval()
+        model.eval()
+        model = model.to(self.device)
+
         with torch.no_grad():
             for img, true in tqdm(self.data_loader):
                 img = img.to(self.device)
                 true = true.to(self.device)
 
-                pred = self.model(img)
+                pred = model(img)
 
                 trues.append(true.detach().cpu())
                 preds.append(pred.detach().cpu())
@@ -41,14 +41,14 @@ class ThoracicClassifierEvaluator:
         trues = torch.cat(trues)
         preds = torch.cat(preds)
 
-        class_aucs = self.compute_metrics(binary=self.binary, classes=self.classes)(preds, trues)
+        class_aucs = self.compute_metrics(preds, trues)
         for key, value in zip(class_aucs.keys(), class_aucs.values()):
             print(key, ':', f'{value:.3f}', end='\n')
 
         return trues, preds
 
-    def compute_roc(self):
-        trues, preds = self.evaluate()
+    def compute_roc(self, model: nn.Module):
+        trues, preds = self.evaluate(model=model)
         class_rocs = {f"{c}_ROC": roc_curve(trues[:, i], preds[:, i]) for i, c in enumerate(self.classes)}
         return class_rocs
 

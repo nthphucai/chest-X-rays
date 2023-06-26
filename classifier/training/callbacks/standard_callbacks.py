@@ -1,5 +1,4 @@
 import collections
-import copy
 import csv
 import io
 import os
@@ -14,7 +13,7 @@ from .base_class import TrainerCallback
 
 class ReduceLROnPlateau(TrainerCallback):
     def __init__(
-        self, monitor="eval_loss", patience=5, mode="min", factor=0.1, verbose=1
+            self, monitor="eval_loss", patience=5, mode="min", factor=0.1, verbose=1
     ):
         super().__init__()
 
@@ -88,13 +87,13 @@ class EarlyStopping(TrainerCallback):
 
 class ModelCheckpoint(TrainerCallback):
     def __init__(
-        self,
-        file_path,
-        monitor="eval_loss",
-        mode="min",
-        save_best_only=True,
-        overwrite=True,
-        verbose=1,
+            self,
+            file_path,
+            monitor="eval_loss",
+            mode="min",
+            save_best_only=True,
+            overwrite=True,
+            verbose=1,
     ):
         super().__init__()
 
@@ -115,23 +114,22 @@ class ModelCheckpoint(TrainerCallback):
         is_save = not self.save_best_only or is_min or is_max
 
         if is_save:
-            print("saving model to", self.file_path) if self.verbose else None
-
             path = self.file_path
 
             if not self.overwrite:
                 path = f"{path}_{epoch}"
 
-            model_state_dict = copy.deepcopy(self.models[0].state_dict())
-            torch.save(model_state_dict, path)
+            print("saving model to", f"{path}.model") if self.verbose else None
 
-            # for i, m in enumerate(self.models):
-            #     model_dict = m.state_dict()
-            #     torch.save(model_dict, f"{path}.model_{i}")
+            for i, m in enumerate(self.models):
+                model_dict = m.state_dict()
+                torch.save(model_dict, f"{path}.model")
+                # torch.save(model_dict, f"{path}.model_{i}")
 
-            # for i, opt in enumerate(self.optimizers):
-            #     optim_dict = opt.state_dict()
-            #     torch.save(optim_dict, f"{path}.opt_{i}")
+            for i, opt in enumerate(self.optimizers):
+                optim_dict = opt.state_dict()
+                torch.save(optim_dict, f"{path}.opt")
+                # torch.save(optim_dict, f"{path}.opt_{i}")
 
             self.running_monitor_val = monitor_val
 
