@@ -4,7 +4,7 @@ import torch.nn as nn
 from torchvision.models import densenet121
 
 from .chexnet import ChexNet
-from .gcn_v2 import GCN as GCN_v2
+from .gnn_v2 import GCN as GCN_v2
 from .gnn import GCN
 from .modules.attentions import SAModule
 from .modules.commons import GlobalAverage
@@ -15,7 +15,7 @@ GCN_TASK = {
 }
 
 def classifier(
-    backbone: str = None,
+    model_type: str = None,
     gcn=True,
     pretrained_path=None,
     freeze_feature=False,
@@ -23,11 +23,11 @@ def classifier(
     correlation_path="data/vinbigdata/vin_correlations_14.npy",
     n_class=14,
 ):
-    if "densenet121" in backbone:
+    if "densenet121" in model_type:
         features = densenet121(True).features
         final_width = int(features[-1].num_features)
 
-    elif "chexnet" in backbone:
+    elif "chexnet" in model_type:
         features = ChexNet(trained=True).backbone
         final_width = ChexNet(trained=True).head[-1].in_features
 
@@ -65,17 +65,18 @@ def classifier(
     model.dropout = nn.Dropout(0.5)
     model.attention = SAModule(final_width)
 
-    if pretrained_path is not None:
-        print(f"pretrained_path:", pretrained_path)
-        cp = torch.load(pretrained_path, map_location="cpu")
-        model.load_state_dict(cp["model_state_dict"])
-
     if freeze_feature:
         print("Freeze feature")
         for p in model.features.parameters():
             p.requires_grad = False
 
     model.classifier = classifier
+
+    if pretrained_path is not None:
+        print(f"pretrained_path:", pretrained_path)
+        cp = torch.load(pretrained_path, map_location="cpu")
+        model.load_state_dict(cp)
+        # model.load_state_dict(cp["model_state_dict"])
 
     return model
 

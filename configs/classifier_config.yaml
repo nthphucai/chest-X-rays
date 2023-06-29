@@ -15,6 +15,6 @@ classifier:
     lr: 1.e-4
   scheduler:
     name: reduce_plateu
-  callbacks: [ { "name": "report_to_wandb" } ]
+  callbacks: [ { "name": "report_to_wandb" }, {"name": "early_stopping", "monitor": "eval_loss"}, {"name": "warm_restart"} ]
 
     
