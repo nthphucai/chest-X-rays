@@ -48,7 +48,7 @@ All images were labeled by a panel of experienced radiologists for the presence 
 
 This figure below illustrates the data for Exploratory Data Analysis (EDA) concerning 14 different types of thoracic abnormalities. In this data, a label of 0 denotes a normal case, while a label of 1 signifies the presence of abnormalities
 
-![eda.png](..%2F..%2F..%2FDownloads%2Feda.png)
+![eda.png](docs%2Fimgs%2Feda.png)
 
 ### Proposed Method 
 ![img.png](docs%2Fimgs%2Fimg.png)
@@ -71,7 +71,7 @@ bash scripts/train-classifier.sh
 ```
 
 ### Evaluation and Result
-![img_1.png](img_1.png)
+![result.png](docs%2Fimgs%2Fresult.png)
 
 ### References
 Z. Chen, X. Wei, P. Wang and Y. Guo, "Multi-label image recognition with graph convolutional networks", Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit., pp. 5177-5186, 2019.
